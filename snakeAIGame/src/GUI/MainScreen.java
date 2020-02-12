@@ -7,7 +7,6 @@ public class MainScreen extends JFrame
 {
 	private static final int DEFAULT_WIDTH = 600;
 	private static final int DEFAULT_HEIGHT = 835;
-	
 	public MainScreen()
 	{
 		// Getting screen size
