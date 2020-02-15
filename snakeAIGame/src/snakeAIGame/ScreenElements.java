@@ -8,6 +8,8 @@ public class ScreenElements extends JComponent {
 	private static final int initialX = 50;
 	private static final int initialY = 250;
 	private static JButton startButton = new JButton();
+	private static JLabel score = new JLabel();
+	private static String score_string = "0";
 	public void paintComponent(Graphics g)
 	{	
 		// Background
@@ -35,6 +37,14 @@ public class ScreenElements extends JComponent {
 		startButton.setFont(new Font("SansSerif", Font.BOLD, 18));	
 		startButton.setBackground(Color.black);
 		add(startButton);
+		
+		// Score text field
+		score.setText(score_string);
+		score.setAlignmentY(CENTER_ALIGNMENT);
+		score.setAlignmentX(CENTER_ALIGNMENT);
+		score.setFont(new Font("SansSerif", Font.BOLD, 28));
+		score.setBounds(500, 125, 50, 30);
+		add(score);
 	}
 	
 	public JButton getStartButton()
@@ -45,6 +55,12 @@ public class ScreenElements extends JComponent {
 	public void setStartButton(JButton bt)
 	{
 		startButton = bt;
+		repaint();
+	}
+	
+	public void setScore(int score_value)
+	{
+		score_string = String.valueOf(score_value);
 		repaint();
 	}
 	
