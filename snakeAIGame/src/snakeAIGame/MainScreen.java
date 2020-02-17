@@ -1,3 +1,9 @@
+/* 
+* Snake AI game
+* Developed by Ariel Lima
+* Copyright. All rights reserved © 
+*/
+
 package snakeAIGame;
 
 import java.awt.*;
@@ -6,17 +12,25 @@ import javax.swing.*;
 
 public class MainScreen extends JFrame
 {
+	// Screen size
 	private static final int DEFAULT_WIDTH = 600;
 	private static final int DEFAULT_HEIGHT = 835;
+	
+	// Game icon
 	private final URL icon_path = getClass().getResource("/assets/icon.png");
 	private final ImageIcon icon = new ImageIcon(icon_path);
+	
+	// Elements of the screen (background, button, snake arena)
 	private static ScreenElements elements = new ScreenElements();
+	
 	public MainScreen()
 	{
 		// Setting frame
 		setIconImage(icon.getImage());
 		setTitle("snakeAI");
 		setResizable(false);
+		setFocusable(true);
+		requestFocusInWindow();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
@@ -33,44 +47,22 @@ public class MainScreen extends JFrame
 		setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		
 		// Add background
-		add(elements);
-		
+		add(elements);	
+				
 		// Shows screen
 		setVisible(true);	
 	}
 	
+	// Returns the button element (in order to be used in the main class)
 	public JButton getStartButton()
 	{
 		return elements.getStartButton();
 	}
 	
+	// Returns the score label element (in order to be used in the main class)
 	public void setScore(int score_value)
 	{
 		elements.setScore(score_value);
 	}
-	
-	/*@Override
-	public void keyPressed(KeyEvent e) {
-		int key = e.getKeyCode();
-
-		System.out.println("left");
-		
-	    /*if (key == KeyEvent.VK_LEFT) {
-	    	last_action = Actions.LEFT;
-	    }
-
-	    if (key == KeyEvent.VK_RIGHT) {
-	    	last_action = Actions.RIGHT;
-	    }
-
-	    if (key == KeyEvent.VK_UP) {
-	    	last_action = Actions.UP;
-	    }
-
-	    if (key == KeyEvent.VK_DOWN) {
-	    	last_action = Actions.DOWN;
-	    }		
-	}*/
-
 
 }

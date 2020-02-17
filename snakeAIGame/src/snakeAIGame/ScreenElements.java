@@ -10,6 +10,7 @@ public class ScreenElements extends JComponent {
 	private static JButton startButton = new JButton();
 	private static JLabel score = new JLabel();
 	private static String score_string = "0";
+	
 	public void paintComponent(Graphics g)
 	{	
 		// Background
@@ -47,23 +48,20 @@ public class ScreenElements extends JComponent {
 		add(score);
 	}
 	
+	// Returns the button element (in order to be used in the main class)
 	public JButton getStartButton()
 	{
 		return startButton;
 	}
 	
-	public void setStartButton(JButton bt)
-	{
-		startButton = bt;
-		repaint();
-	}
-	
+	// Returns the score label element (in order to be used in the main class)
 	public void setScore(int score_value)
 	{
 		score_string = String.valueOf(score_value);
 		repaint();
 	}
 	
+	// Drawing 50x50 arena
 	private void drawArena(Graphics graph, Color c)
 	{
 		graph.setColor(c);
@@ -74,6 +72,5 @@ public class ScreenElements extends JComponent {
 				graph.drawRect(initialX + i * 10, initialY + j * 10, 10, 10);
 			}
 		}
-		
 	}
 }
