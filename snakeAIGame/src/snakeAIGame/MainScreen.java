@@ -8,6 +8,7 @@ package snakeAIGame;
 
 import java.awt.*;
 import java.net.URL;
+
 import javax.swing.*;
 
 public class MainScreen extends JFrame
@@ -61,7 +62,7 @@ public class MainScreen extends JFrame
 	
 	// Returns the score label element (in order to be used in the main class)
 	public void setScore(int score_value)
-	{
+	{	
 		elements.setScore(score_value);
 	}
 
