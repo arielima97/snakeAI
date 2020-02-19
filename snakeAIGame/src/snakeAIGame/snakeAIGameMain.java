@@ -5,6 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import snakeAIGame.snakeAIGameMain.Actions;
+import snakeAIGame.snakeAIGameMain.Feedback;
 
 import java.util.*;
 
@@ -17,6 +18,15 @@ public class snakeAIGameMain{
 		DOWN,
 		LEFT,
 		RIGHT,
+	};
+	
+	// Snake feedback
+	enum Feedback
+	{
+		HIT_WALL,
+		HIT_ITSELF,
+		HIT_FOOD,
+		HIT_NOTHING
 	};
 	private static Actions last_action;
 	
@@ -115,6 +125,7 @@ public class snakeAIGameMain{
 	static private void run()
 	{
 		Snake mySnake = new Snake();
+		System.out.println(mySnake.getFood().getCoordinateString());
 	}
 	
 	// Sets game score
@@ -153,6 +164,12 @@ final class Coordinate implements Cloneable
 		this.y = y;
 	}
 	
+	void setCoordinate(Coordinate otherCoordinate)
+	{
+		this.x = otherCoordinate.getX();
+		this.y = otherCoordinate.getY();
+	}
+	
 	int getX()
 	{
 		return x;
@@ -163,7 +180,7 @@ final class Coordinate implements Cloneable
 		return y;
 	}
 	
-	String getCoordinate()
+	String getCoordinateString()
 	{
 		return "(" + x + "," + y + ")";
 	}
@@ -224,9 +241,12 @@ final class Snake
 	private int score;
 	private Stack<Coordinate> body;
 	private Actions direction;
+	private Coordinate food;
+	private Random rand = new Random();
 	
 	Snake()
 	{
+		body = new Stack<Coordinate>();
 		body.ensureCapacity(50*50);
 		body.add(new Coordinate(25,26));
 		body.add(new Coordinate(25,27));
@@ -234,8 +254,29 @@ final class Snake
 		direction = Actions.UP;
 		size = body.size();
 		score = size - 3;
+		generateFood();
 	}
-		
+	
+	private void generateFood()
+	{
+		Coordinate food = new Coordinate(25,25);
+		do
+		{
+			food.setCoordinate(rand.nextInt(50) + 1, rand.nextInt(50) + 1);
+		}while(body.contains(food));
+		this.food = food;
+	}
+	
+	Coordinate getFood()
+	{
+		return (Coordinate) food.clone();
+	}
+	
+	Coordinate getHead()
+	{
+		return (Coordinate) body.elementAt(0).clone();
+	}
+	
 	void setDirection(Actions new_direction)
 	{
 		// Block reverse direction
@@ -251,12 +292,38 @@ final class Snake
 			direction = new_direction;
 	}
 	
+	Feedback move()
+	{
+		if(isFood())
+		{
+			grow();
+			generateFood();
+			return Feedback.HIT_FOOD;
+		}
+		else if(isWall())
+		{
+			return Feedback.HIT_WALL;
+		}
+		else if(isMe())
+		{	
+			return Feedback.HIT_ITSELF;
+		}
+		else
+		{
+			Coordinate new_head = (Coordinate) body.elementAt(0).clone(); // Clone head coordinate.
+			new_head.move(direction); // Move the head to the direction selected by the user.
+			body.add(new_head); // Add the new head.
+			body.removeElementAt(body.size() - 1); // Removes the last coordinate.
+			return Feedback.HIT_NOTHING;
+		}
+	}
+	
 	Actions getDirection()
 	{
 		return direction;
 	}
 		
-	void grow(Coordinate food)
+	void grow()
 	{
 		body.add(food);
 		updateSize();
@@ -268,11 +335,11 @@ final class Snake
 		score = size - 3;
 	}
 	
-	boolean isFood(Coordinate suspect)
+	boolean isFood()
 	{
 		Coordinate predict = (Coordinate) body.elementAt(0).clone(); // Clones the snake head
 		predict.move(direction); // Moves the snake head to the possible point of food
-		return predict.equals(suspect);
+		return predict.equals(food);
 	}
 	
 	boolean isWall()
