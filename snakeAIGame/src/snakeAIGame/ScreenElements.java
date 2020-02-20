@@ -1,6 +1,8 @@
 package snakeAIGame;
 
 import java.awt.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class ScreenElements extends JComponent {
@@ -10,6 +12,7 @@ public class ScreenElements extends JComponent {
 	private static JButton startButton = new JButton();
 	private static JLabel score = new JLabel();
 	private static String score_string = "0";
+	private static ArrayList<Coordinate> pixels = new ArrayList<Coordinate>();
 	
 	public void paintComponent(Graphics g)
 	{	
@@ -17,7 +20,7 @@ public class ScreenElements extends JComponent {
 		g.drawImage(background, 0, 0, null);
 		
 		// Arena
-		drawArena(g,Color.LIGHT_GRAY);
+		drawArena(g);
 		
 		// Score area
 		g.setColor(Color.LIGHT_GRAY);
@@ -61,16 +64,31 @@ public class ScreenElements extends JComponent {
 		repaint();
 	}
 	
-	// Drawing 50x50 arena
-	private void drawArena(Graphics graph, Color c)
+	// Draw snake and food on arena
+	public void drawSnake(ArrayList <Coordinate> points)
 	{
-		graph.setColor(c);
-		for(int i = 0; i < 50; i++)
+		pixels.clear();
+		pixels = points;
+		repaint();
+	}
+
+	// Drawing 50x50 arena
+	private void drawArena(Graphics graph)
+	{
+		
+		for(int i = 1; i <= 50; i++)
 		{
-			for(int j = 0; j < 50; j++)
+			for(int j = 1; j <= 50; j++)
 			{
-				graph.drawRect(initialX + i * 10, initialY + j * 10, 10, 10);
+				graph.setColor(Color.LIGHT_GRAY);
+				graph.drawRect(initialX + (i-1) * 10, initialY + (j-1) * 10, 10, 10);			
 			}
 		}
+		for(Coordinate p : pixels)
+		{
+			graph.setColor(Color.BLACK);
+			graph.fillRect(initialX + (p.getX() - 1) * 10, initialY + (p.getY() - 1) * 10, 10, 10);
+		}
 	}
+	
 }

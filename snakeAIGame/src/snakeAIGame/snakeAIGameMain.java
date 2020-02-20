@@ -23,18 +23,32 @@ public class snakeAIGameMain{
 	// Snake feedback
 	enum Feedback
 	{
+		IDLE,
 		HIT_WALL,
 		HIT_ITSELF,
 		HIT_FOOD,
 		HIT_NOTHING
 	};
-	private static Actions last_action;
+	private static Actions last_action = Actions.UP;
 	
 	// JFrame main screen
 	private static MainScreen screen;
 	
 	// Score
 	private static int score_value = 0;
+
+	// Game control
+	private static boolean isRunning = false;
+	
+	// Game execution
+	private static Thread game = new Thread() 
+	{
+		@Override
+		public void run()
+		{
+			snakeAIGameMain.run();
+		}
+	};
 	
 	// Communication thread
 	private static Thread communicationThread = new Thread() 
@@ -111,21 +125,85 @@ public class snakeAIGameMain{
 		
 		// Gets the button element from the screen and adds a listener to check the click
 		JButton start_game = screen.getStartButton();	
-		start_game.addActionListener(new ActionListener()
+		start_game.addMouseListener(new MouseListener()
 	    {
-		    public void actionPerformed(ActionEvent e)
-		    {
-		    	// When the Start game button is clicked the game starts/restarts
-		    	run();
-		    }
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+			}
+
+			public void mouseReleased(MouseEvent arg0) {	
+				
+				if(isRunning == true)
+				{
+					isRunning = false;
+					game = new Thread() 
+					{
+						@Override
+						public void run()
+						{
+							try 
+							{
+								Thread.sleep(210);
+							} catch (InterruptedException e) {}
+							snakeAIGameMain.run();
+						}
+					};
+				}
+				try {
+					game.start();
+				} catch (Exception e) 
+				{
+					isRunning = true;
+				}
+				
+			}
+		    
 	    });
 	}
 		
 	// Starts/restarts game
 	static private void run()
 	{
+		isRunning = true;
 		Snake mySnake = new Snake();
-		System.out.println(mySnake.getFood().getCoordinateString());
+		Feedback mySnakeFeedback = Feedback.IDLE;
+		while(mySnakeFeedback != Feedback.HIT_ITSELF && mySnakeFeedback != Feedback.HIT_WALL && isRunning == true)
+		{
+			try 
+			{
+				Thread.sleep(200);
+			} 
+			catch (InterruptedException e) 
+			{
+				System.out.println("Game thread interrupted");
+			}
+			if(isRunning == false)
+				return;
+			mySnake.setDirection(last_action);
+			mySnakeFeedback = mySnake.move();
+			setScore(mySnake.getScore());
+			screen.drawSnake(mySnake.getDrawPoints());
+			System.out.println(mySnake.getHead().toString() + " - Score: " + mySnake.getScore() + " - Food at: " + mySnake.getFood().toString());		
+		}
+		if(isRunning == false)
+			return;
+		
+		
+		
+		isRunning = false;
 	}
 	
 	// Sets game score
@@ -180,7 +258,7 @@ final class Coordinate implements Cloneable
 		return y;
 	}
 	
-	String getCoordinateString()
+	public String toString()
 	{
 		return "(" + x + "," + y + ")";
 	}
@@ -248,9 +326,9 @@ final class Snake
 	{
 		body = new Stack<Coordinate>();
 		body.ensureCapacity(50*50);
-		body.add(new Coordinate(25,26));
-		body.add(new Coordinate(25,27));
-		body.add(new Coordinate(25,25)); // This is the head	
+		body.add(0, new Coordinate(25,27));
+		body.add(0, new Coordinate(25,26));
+		body.add(0, new Coordinate(25,25)); // This is the head	
 		direction = Actions.UP;
 		size = body.size();
 		score = size - 3;
@@ -265,6 +343,22 @@ final class Snake
 			food.setCoordinate(rand.nextInt(50) + 1, rand.nextInt(50) + 1);
 		}while(body.contains(food));
 		this.food = food;
+	}
+	
+	ArrayList<Coordinate> getDrawPoints()
+	{
+		ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+		points.add(getFood());
+		for(Coordinate x : body)
+		{
+			points.add((Coordinate) x.clone());
+		}		
+		return points;
+	}
+	
+	int getScore()
+	{
+		return score;
 	}
 	
 	Coordinate getFood()
@@ -312,7 +406,7 @@ final class Snake
 		{
 			Coordinate new_head = (Coordinate) body.elementAt(0).clone(); // Clone head coordinate.
 			new_head.move(direction); // Move the head to the direction selected by the user.
-			body.add(new_head); // Add the new head.
+			body.add(0, new_head); // Add the new head.
 			body.removeElementAt(body.size() - 1); // Removes the last coordinate.
 			return Feedback.HIT_NOTHING;
 		}
@@ -323,26 +417,27 @@ final class Snake
 		return direction;
 	}
 		
-	void grow()
+	private void grow()
 	{
-		body.add(food);
+		body.add(0, food);
 		updateSize();
+		move();
 	}
 	
-	void updateSize()
+	private void updateSize()
 	{
 		size = body.size();
 		score = size - 3;
 	}
 	
-	boolean isFood()
+	private boolean isFood()
 	{
 		Coordinate predict = (Coordinate) body.elementAt(0).clone(); // Clones the snake head
 		predict.move(direction); // Moves the snake head to the possible point of food
 		return predict.equals(food);
 	}
 	
-	boolean isWall()
+	private boolean isWall()
 	{
 		Coordinate predict = (Coordinate) body.elementAt(0).clone(); // Clones the snake head
 		predict.move(direction); // Moves the snake head to the possible point of wall
@@ -352,14 +447,19 @@ final class Snake
 			return false;	
 	}
 	
-	boolean isMe()
+	private boolean isMe()
 	{
 		Coordinate predict = (Coordinate) body.elementAt(0).clone(); // Clones the snake head
 		predict.move(direction); // Moves the snake head to the possible point of wall
-		if(body.contains(predict))
-			return true;
-		else
-			return false;
+		
+		for(Coordinate p : body)
+		{
+			if(p.getX() == predict.getX() && p.getY() == predict.getY())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	

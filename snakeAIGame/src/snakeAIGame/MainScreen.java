@@ -8,6 +8,7 @@ package snakeAIGame;
 
 import java.awt.*;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -64,6 +65,12 @@ public class MainScreen extends JFrame
 	public void setScore(int score_value)
 	{	
 		elements.setScore(score_value);
+	}
+	
+	// Draw snake and food on the arena
+	public void drawSnake(ArrayList<Coordinate> points)
+	{
+		elements.drawSnake(points);
 	}
 
 }
