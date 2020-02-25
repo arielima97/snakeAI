@@ -13,6 +13,7 @@ public class ScreenElements extends JComponent {
 	private static JLabel score = new JLabel();
 	private static String score_string = "0";
 	private static ArrayList<Coordinate> pixels = new ArrayList<Coordinate>();
+	private static boolean game_over_stat = false;
 	
 	public void paintComponent(Graphics g)
 	{	
@@ -21,6 +22,10 @@ public class ScreenElements extends JComponent {
 		
 		// Arena
 		drawArena(g);
+		
+		// Game over
+		if(game_over_stat)
+			drawGameOver(g);
 		
 		// Score area
 		g.setColor(Color.LIGHT_GRAY);
@@ -71,7 +76,32 @@ public class ScreenElements extends JComponent {
 		pixels = points;
 		repaint();
 	}
-
+	
+	// Set new game
+	public void new_game()
+	{
+		game_over_stat = false;
+		repaint();
+	}
+	
+	// Set game over
+	public void game_over()
+	{
+		game_over_stat = true;
+		repaint();
+	}
+	
+	// Draw game over
+	public void drawGameOver(Graphics graph)
+	{
+		pixels.clear();
+		graph.setColor(Color.BLACK);
+		graph.fillRect(initialX + 50, initialY + 210, 400, 80);		
+		graph.setColor(Color.WHITE);
+		graph.setFont(new Font("SansSerif", Font.BOLD, 28));
+		graph.drawString("GAME OVER", initialX + 160, initialY + 260);
+	}
+	
 	// Drawing 50x50 arena
 	private void drawArena(Graphics graph)
 	{

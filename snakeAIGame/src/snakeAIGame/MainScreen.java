@@ -72,5 +72,17 @@ public class MainScreen extends JFrame
 	{
 		elements.drawSnake(points);
 	}
+	
+	// Set new game
+	public void new_game()
+	{
+		elements.new_game();
+	}
+	
+	// Set game over
+	public void game_over()
+	{
+		elements.game_over();
+	}
 
 }

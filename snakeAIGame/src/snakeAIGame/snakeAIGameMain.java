@@ -145,10 +145,11 @@ public class snakeAIGameMain{
 			}
 
 			public void mouseReleased(MouseEvent arg0) {	
-				
+				last_action = Actions.UP;
 				if(isRunning == true)
-				{
 					isRunning = false;
+
+				try {
 					game = new Thread() 
 					{
 						@Override
@@ -161,8 +162,6 @@ public class snakeAIGameMain{
 							snakeAIGameMain.run();
 						}
 					};
-				}
-				try {
 					game.start();
 				} catch (Exception e) 
 				{
@@ -177,6 +176,7 @@ public class snakeAIGameMain{
 	// Starts/restarts game
 	static private void run()
 	{
+		screen.new_game();	
 		isRunning = true;
 		Snake mySnake = new Snake();
 		Feedback mySnakeFeedback = Feedback.IDLE;
@@ -201,7 +201,7 @@ public class snakeAIGameMain{
 		if(isRunning == false)
 			return;
 		
-		
+		screen.game_over();		
 		
 		isRunning = false;
 	}
@@ -338,10 +338,19 @@ final class Snake
 	private void generateFood()
 	{
 		Coordinate food = new Coordinate(25,25);
+		boolean check = false;
 		do
 		{
+			check = false;
 			food.setCoordinate(rand.nextInt(50) + 1, rand.nextInt(50) + 1);
-		}while(body.contains(food));
+			for(Coordinate p : body)
+			{
+				if(p.getX() == food.getX() && p.getY() == food.getY())
+				{
+					check = true;
+				}
+			}			
+		}while(check);
 		this.food = food;
 	}
 	
