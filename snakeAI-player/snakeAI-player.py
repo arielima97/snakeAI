@@ -7,6 +7,7 @@
 import os
 from subprocess import Popen, PIPE
 import pathlib
+import time
 
 # Getting game path to change the main directory
 game_path = (str(pathlib.Path(pathlib.Path(__file__).parent.absolute()).parent.absolute()) + "/snakeAIGame/bin")#.replace(" ", "\ ")
@@ -22,17 +23,34 @@ def command(process, data):
     data = str(data)
     if not data.endswith("\n"):
         data = data + "\n"
-    game.stdin.write(data)
-    game.stdin.flush()
-    return game.stdout.readline()
+    process.stdin.write(data)
+    process.stdin.flush()
+    return process.stdout.readline()
 
 # Main loop
+
+time_between_actions = command(game, "RUN")
+print('Time beetween actions: ' + time_between_actions)
+time_between_actions = float(time_between_actions) / 1000.0
+time.sleep(time_between_actions)
 while True:
-    text = input()
-    output = command(game, text)
-    if game.poll() is not None:
-        break
-    else:
+    for i in range(5): 
+        output = command(game, "RIGHT")
         print(output)
+        time.sleep(time_between_actions)
+    for i in range(5): 
+        output = command(game, "DOWN")
+        print(output)
+        time.sleep(time_between_actions)
+    for i in range(5): 
+        output = command(game, "LEFT")
+        print(output)
+        time.sleep(time_between_actions)
+    for i in range(5): 
+        output = command(game, "UP")
+        print(output)
+        time.sleep(time_between_actions)
+
+        
     
 

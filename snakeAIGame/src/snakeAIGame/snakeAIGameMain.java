@@ -3,7 +3,6 @@ package snakeAIGame;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-
 import snakeAIGame.snakeAIGameMain.Actions;
 import snakeAIGame.snakeAIGameMain.Feedback;
 
@@ -40,6 +39,9 @@ public class snakeAIGameMain{
 	// Game control
 	private static boolean isRunning = false;
 	
+	// Time per action
+	private static int time_ms = 100;
+	
 	// Game execution
 	private static Thread game = new Thread() 
 	{
@@ -63,27 +65,27 @@ public class snakeAIGameMain{
 				if(read.hasNext())
 				{
 					data = read.nextLine();
-					if(data.equals("UP"))
+					if(data.contains("UP"))
 					{
 						setLastAction(Actions.UP);
 					}
-					if(data.equals("DOWN"))
+					if(data.contains("DOWN"))
 					{
 						setLastAction(Actions.DOWN);
 					}
-					if(data.equals("LEFT"))
+					if(data.contains("LEFT"))
 					{
 						setLastAction(Actions.LEFT);
 					}
-					if(data.equals("RIGHT"))
+					if(data.contains("RIGHT"))
 					{
 						setLastAction(Actions.RIGHT);
 					}
-					if(data.equals("RUN"))
+					if(data.contains("RUN"))
 					{
-						snakeAIGameMain.run();
-					}					
-					send("COMMAND_OK");
+						new_game();
+						send(String.valueOf(time_ms));
+					}			
 				}
 			}
 		}
@@ -121,7 +123,7 @@ public class snakeAIGameMain{
             public void keyReleased(KeyEvent e) {
                 return;
             }
-		});
+		});    
 		
 		// Gets the button element from the screen and adds a listener to check the click
 		JButton start_game = screen.getStartButton();	
@@ -145,34 +147,38 @@ public class snakeAIGameMain{
 			}
 
 			public void mouseReleased(MouseEvent arg0) {	
-				last_action = Actions.UP;
-				if(isRunning == true)
-					isRunning = false;
-
-				try {
-					game = new Thread() 
-					{
-						@Override
-						public void run()
-						{
-							try 
-							{
-								Thread.sleep(210);
-							} catch (InterruptedException e) {}
-							snakeAIGameMain.run();
-						}
-					};
-					game.start();
-				} catch (Exception e) 
-				{
-					isRunning = true;
-				}
-				
+				new_game();				
 			}
 		    
 	    });
 	}
 		
+	static private void new_game()
+	{
+		last_action = Actions.UP;
+		if(isRunning == true)
+			isRunning = false;
+
+		try {
+			game = new Thread() 
+			{
+				@Override
+				public void run()
+				{
+					try 
+					{
+						Thread.sleep(time_ms + 10);
+					} catch (InterruptedException e) {}
+					snakeAIGameMain.run();
+				}
+			};
+			game.start();
+		} catch (Exception e) 
+		{
+			isRunning = true;
+		}
+	}
+	
 	// Starts/restarts game
 	static private void run()
 	{
@@ -184,7 +190,7 @@ public class snakeAIGameMain{
 		{
 			try 
 			{
-				Thread.sleep(200);
+				Thread.sleep(time_ms);
 			} 
 			catch (InterruptedException e) 
 			{
@@ -196,7 +202,7 @@ public class snakeAIGameMain{
 			mySnakeFeedback = mySnake.move();
 			setScore(mySnake.getScore());
 			screen.drawSnake(mySnake.getDrawPoints());
-			System.out.println(mySnake.getHead().toString() + " - Score: " + mySnake.getScore() + " - Food at: " + mySnake.getFood().toString());		
+			send(mySnake.getHead().toString() + " - Score: " + mySnake.getScore() + " - Food at: " + mySnake.getFood().toString());		
 		}
 		if(isRunning == false)
 			return;
@@ -216,7 +222,7 @@ public class snakeAIGameMain{
 	static private void setLastAction(Actions _action)
 	{
 		last_action = _action;
-		System.out.println(last_action.toString());
+		//System.out.println(last_action.toString());
 	}
 	
 	// Send data to the console (ensures there won't be conflicts printing on terminal)
