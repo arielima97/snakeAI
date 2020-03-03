@@ -1,6 +1,5 @@
 package snakeAIGame;
 
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import snakeAIGame.snakeAIGameMain.Actions;
@@ -32,9 +31,6 @@ public class snakeAIGameMain{
 	
 	// JFrame main screen
 	private static MainScreen screen;
-	
-	// Score
-	private static int score_value = 0;
 
 	// Game control
 	private static boolean isRunning = false;
@@ -186,6 +182,7 @@ public class snakeAIGameMain{
 		isRunning = true;
 		Snake mySnake = new Snake();
 		Feedback mySnakeFeedback = Feedback.IDLE;
+		long counter = 1;
 		while(mySnakeFeedback != Feedback.HIT_ITSELF && mySnakeFeedback != Feedback.HIT_WALL && isRunning == true)
 		{
 			try 
@@ -202,7 +199,10 @@ public class snakeAIGameMain{
 			mySnakeFeedback = mySnake.move();
 			setScore(mySnake.getScore());
 			screen.drawSnake(mySnake.getDrawPoints());
-			send(mySnake.getHead().toString() + " - Score: " + mySnake.getScore() + " - Food at: " + mySnake.getFood().toString());		
+			send(counter + " - " + mySnake.getHead().toString() + " - Score: " + mySnake.getScore() + " - Food at: " + 
+			mySnake.getFood().toString() + " - Front = " + mySnake.getSensorFront() + " - Right = " +
+			mySnake.getSensorRight() + " - Left = " + mySnake.getSensorLeft());	
+			counter++;
 		}
 		if(isRunning == false)
 			return;
@@ -327,6 +327,9 @@ final class Snake
 	private Actions direction;
 	private Coordinate food;
 	private Random rand = new Random();
+	private int sensor_front;
+	private int sensor_right;
+	private int sensor_left;
 	
 	Snake()
 	{
@@ -339,6 +342,79 @@ final class Snake
 		size = body.size();
 		score = size - 3;
 		generateFood();
+		updateSensors();
+	}
+	
+	private void updateSensors()
+	{
+		Coordinate head = (Coordinate) body.elementAt(0).clone(); // Clones the snake head
+		Coordinate before_head = (Coordinate) body.elementAt(1).clone(); // Clones the snake point before head
+		Coordinate front, right, left;
+		// Vertical
+		if(head.getX() - before_head.getX() == 0)
+		{
+			if(head.getY() - before_head.getY() == 1)
+			{
+				front = new Coordinate(head.getX(), head.getY() + 1);
+				right = new Coordinate(head.getX() - 1, head.getY());
+				left = new Coordinate(head.getX() + 1 , head.getY());
+			}
+			else
+			{
+				front = new Coordinate(head.getX(), head.getY() - 1);
+				right = new Coordinate(head.getX() + 1, head.getY());
+				left = new Coordinate(head.getX() - 1 , head.getY());
+			}
+		}
+		// Horizontal
+		else
+		{
+			if(head.getX() - before_head.getX() == 1)
+			{
+				front = new Coordinate(head.getX() + 1, head.getY());
+				right = new Coordinate(head.getX(), head.getY() + 1);
+				left = new Coordinate(head.getX(), head.getY() - 1);
+			}
+			else
+			{
+				front = new Coordinate(head.getX() - 1, head.getY());
+				right = new Coordinate(head.getX(), head.getY() - 1);
+				left = new Coordinate(head.getX() , head.getY() + 1);
+			}
+		}
+		
+		// Default: nothing found
+		sensor_front = 0;
+		sensor_right = 0;
+		sensor_left = 0;
+		
+		// Food detected
+		if(front.equals(food))
+			sensor_front = 1;
+		if(right.equals(food))
+			sensor_right = 1;
+		if(left.equals(food))
+			sensor_left = 1;
+		
+		// Wall detected
+		if(front.getX() < 1 || front.getX() > 50 || front.getY() < 1 || front.getY() > 50)
+			sensor_front = 2;
+		if(right.getX() < 1 || right.getX() > 50 || right.getY() < 1 || right.getY() > 50)
+			sensor_right = 2;
+		if(left.getX() < 1 || left.getX() > 50 || left.getY() < 1 || left.getY() > 50)
+			sensor_left = 2;
+		
+		// Self detected
+		for(Coordinate p : body)
+		{
+			if(p.getX() == front.getX() && p.getY() == front.getY())
+				sensor_front = 3;
+			if(p.getX() == right.getX() && p.getY() == right.getY())
+				sensor_right = 3;
+			if(p.getX() == left.getX() && p.getY() == left.getY())
+				sensor_left = 3;
+
+		}
 	}
 	
 	private void generateFood()
@@ -407,6 +483,7 @@ final class Snake
 		{
 			grow();
 			generateFood();
+			updateSensors();
 			return Feedback.HIT_FOOD;
 		}
 		else if(isWall())
@@ -423,8 +500,10 @@ final class Snake
 			new_head.move(direction); // Move the head to the direction selected by the user.
 			body.add(0, new_head); // Add the new head.
 			body.removeElementAt(body.size() - 1); // Removes the last coordinate.
+			updateSensors();
 			return Feedback.HIT_NOTHING;
 		}
+		
 	}
 	
 	Actions getDirection()
@@ -443,6 +522,21 @@ final class Snake
 	{
 		size = body.size();
 		score = size - 3;
+	}
+	
+	public int getSensorFront()
+	{
+		return sensor_front;
+	}
+	
+	public int getSensorRight()
+	{
+		return sensor_right;
+	}
+	
+	public int getSensorLeft()
+	{
+		return sensor_left;
 	}
 	
 	private boolean isFood()

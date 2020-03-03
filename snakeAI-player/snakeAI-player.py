@@ -33,22 +33,27 @@ time_between_actions = command(game, "RUN")
 print('Time beetween actions: ' + time_between_actions)
 time_between_actions = float(time_between_actions) / 1000.0
 time.sleep(time_between_actions)
+counter = 1
 while True:
     for i in range(5): 
         output = command(game, "RIGHT")
-        print(output)
+        print(str(counter) + "/" + output)
+        counter = counter + 1
         time.sleep(time_between_actions)
     for i in range(5): 
         output = command(game, "DOWN")
-        print(output)
+        print(str(counter) + "/" + output)
+        counter = counter + 1
         time.sleep(time_between_actions)
     for i in range(5): 
         output = command(game, "LEFT")
-        print(output)
+        print(str(counter) + "/" + output)
+        counter = counter + 1
         time.sleep(time_between_actions)
     for i in range(5): 
         output = command(game, "UP")
-        print(output)
+        print(str(counter) + "/" + output)
+        counter = counter + 1
         time.sleep(time_between_actions)
 
         
