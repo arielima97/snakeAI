@@ -105,20 +105,23 @@ public class ScreenElements extends JComponent {
 	// Drawing 50x50 arena
 	private void drawArena(Graphics graph)
 	{
-		
-		for(int i = 1; i <= 50; i++)
+		try
 		{
-			for(int j = 1; j <= 50; j++)
+			for(int i = 1; i <= 50; i++)
 			{
-				graph.setColor(Color.LIGHT_GRAY);
-				graph.drawRect(initialX + (i-1) * 10, initialY + (j-1) * 10, 10, 10);			
+				for(int j = 1; j <= 50; j++)
+				{
+					graph.setColor(Color.LIGHT_GRAY);
+					graph.drawRect(initialX + (i-1) * 10, initialY + (j-1) * 10, 10, 10);			
+				}
+			}
+			for(Coordinate p : pixels)
+			{
+				graph.setColor(Color.BLACK);
+				graph.fillRect(initialX + (p.getX() - 1) * 10, initialY + (p.getY() - 1) * 10, 10, 10);
 			}
 		}
-		for(Coordinate p : pixels)
-		{
-			graph.setColor(Color.BLACK);
-			graph.fillRect(initialX + (p.getX() - 1) * 10, initialY + (p.getY() - 1) * 10, 10, 10);
-		}
+		catch (Exception e) {}
 	}
 	
 }
